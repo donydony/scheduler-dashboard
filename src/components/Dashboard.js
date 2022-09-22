@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Loading from "components/Loading";
+import Panel from "components/Panel";
 
 import classnames from "classnames";
 
@@ -27,22 +28,39 @@ const data = [
 ];
 
 class Dashboard extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      loading: false
+    state = {
+      loading: false,
+      focused: null
     };
-  }
+
+
+  selectPanel(id) {
+    this.setState(previousState => ({
+      focused: previousState.focused !== null ? null : id
+    }));
+   }
 
   render() {
-    const dashboardClasses = classnames("dashboard");
+    const dashboardClasses = classnames("dashboard", {
+      "dashboard--focused": this.state.focused
+    });
+    const panels = (this.state.focused ? data.filter(panel => this.state.focused === panel.id) : data)
+      .map(panel => (
+        <Panel
+          key={panel.id}
+          label={panel.label}
+          value={panel.value}
+          onSelect={event => this.selectPanel(panel.id)}
+        />
+      ));
 
     if (this.state.loading) {
       return <Loading />
     }
 
-    return <main className={dashboardClasses} />;
+    return (<main className={dashboardClasses}>
+      {panels}
+    </main>);
   }
 }
 
